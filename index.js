@@ -1,8 +1,8 @@
 const fs = require('fs');
 const parse = require('csv-parser');
 const mongoose = require('mongoose');
-const ShipModel = require('./ship_model'); // Import your Mongoose schema
-const PortModel = require('./port_model'); // Import your Mongoose schema
+const ShipModel = require('./models/ship_model'); // Import your Mongoose schema
+const PortModel = require('./models/port_model'); // Import your Mongoose schema
 const express = require('express');
 const cors=require('cors');
 
@@ -166,9 +166,9 @@ async function processAndSaveDataPort(filePathPorts) {
 
 
 
-const filePathShips = './geo_stats_data_7_days - geo_stats.csv';
+const filePathShips = './assets/geo_stats_data_7_days - geo_stats.csv';
 // const filePathShips = './geo1.csv';
-const filePathPorts = './port.csv';
+const filePathPorts = './assets/port.csv';
 
 app.post('/populate_data_ship',async(req,res)=>{
     try {
