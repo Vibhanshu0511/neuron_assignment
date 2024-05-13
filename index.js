@@ -7,6 +7,7 @@ const express = require('express');
 const cors=require('cors');
 
 
+
 const app=express();
 
 app.use(cors({
@@ -131,44 +132,49 @@ async function processAndSaveDataPort(filePathPorts) {
 }
 
 
-// async function findShipsAtPort(portName, lastDays) {
+// async function displayPortsOnMap() {
 //     try {
-//         // Find the port by its name
-//         const port = await PortModel.findOne({ 'properties.port_name': portName });
-//         if (!port) {
-//             throw new Error('Port not found');
-//         }
-
-//         // Calculate the date threshold for the last days
-//         const dateThreshold = new Date();
-//         dateThreshold.setDate(dateThreshold.getDate() - lastDays);
-
-//         // Find ships that have visited the port in the last days
-//         const ships = await ShipModel.find({
-//             $or: [
-//                 { 'routes.last2Days.features.geometry.coordinates': { $geoIntersects: { $geometry: port.geometry } } },
-//                 { 'routes.between2And7Days.features.geometry.coordinates': { $geoIntersects: { $geometry: port.geometry } } }
-//             ],
-//             createdAt: { $gte: dateThreshold }
-//         });
-
-//         // Extract ship names
-//         const shipNames = ships.map(ship => ship.shipName);
-
-//         return shipNames;
-//     } catch (error) {
-//         console.error('Error finding ships at port:', error);
-//         return [];
-//     }
-// //   }
+      
   
+//       // Add a marker for each port
+//       ports.forEach((port) => {
+//         const marker = new mapboxgl.Marker()
+//           .setLngLat(port.geometry.coordinates) // Set marker position based on port coordinates
+//           .setPopup(new mapboxgl.Popup({ offset: 25 }) // Add a popup with port name
+//             .setHTML(`<h3>${port.properties.port_name}</h3>`))
+//           .addTo(map);
+//       });
+  
+//     } catch (error) {
+//       console.error('Error fetching ports:', error);
+//     } finally {
+//       // Close the Mongoose connection
+//       await mongoose.disconnect();
+//     }
+//   }
 
-
+//   displayPortsOnMap();
 
 
 const filePathShips = './assets/geo_stats_data_7_days - geo_stats.csv';
 // const filePathShips = './geo1.csv';
 const filePathPorts = './assets/port.csv';
+
+app.get('/', async(req, res) => {
+    try {
+        const ports = await PortModel.find();
+        ports.forEach((port) => {
+          const marker = new mapboxgl.Marker()
+            .setLngLat(port.geometry.coordinates) // Set marker position based on port coordinates
+            .setPopup(new mapboxgl.Popup({ offset: 25 }) // Add a popup with port name
+              .setHTML(`<h3>${port.properties.port_name}</h3>`))
+            .addTo(map);
+        });
+    
+      } catch (error) {
+        console.error('Error fetching ports:', error);
+      } 
+})
 
 app.post('/populate_data_ship',async(req,res)=>{
     try {
@@ -187,15 +193,6 @@ app.get('/ships', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' }); // Handle any errors
     }
 });
-
-// app.get('/ships_names', async (req, res) => {
-//     try {
-//         const ships = await ShipModel.find(); // Retrieve all ship data from the database
-//         res.json(ships); // Respond with the ship data as JSON
-//     } catch (error) {
-//         res.status(500).json({ message: 'Internal Server Error' }); // Handle any errors
-//     }
-// });
 
 app.get('/ships/:shipName', async (req, res) => {
     const shipName = req.params.shipName; // Get the shipName from request parameters
